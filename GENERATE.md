@@ -46,3 +46,12 @@ Following steps were executed.
 5. Implement `ProviderConfig` logic in [internal/clients/awssc.go](internal/clients/awssc.go). 
 
    Copied and adapter from [provider-jet-aws repo](https://github.com/crossplane-contrib/provider-jet-aws/blob/v0.4.2/internal/clients/aws.go).  
+
+6. Updated [config/provider.go](config/provider.go) to include only the resources needed:
+   * aws_servicecatalog_provisioning_artifact
+   * aws_servicecatalog_provisioned_product
+  
+   Then copied and adapted the logic from [provider-jet-aws repo](https://github.com/crossplane-contrib/provider-jet-aws/blob/v0.4.2/config/provider.go).
+
+7. Add custom configuration for the two resources in [config/servicecatalog/config.go](config/servicecatalog/config.go) (empty at the moment),
+then call it in [config/provider.go](config/provider.go).  
