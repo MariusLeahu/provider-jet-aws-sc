@@ -66,4 +66,17 @@ then call it in [config/provider.go](config/provider.go).
    # generate
    make generate
    ```
-   
+
+## Setup CI
+Create a github environment in settings and add the following secrets:
+* AWS_USR
+* AWS_PSW
+* DOCKER_USR
+* DOCKER_PSW
+* DOCKER_REGISTRY
+
+## Tag the version
+```bash
+git tag -a v0.1.0
+git push origin --tags
+```
