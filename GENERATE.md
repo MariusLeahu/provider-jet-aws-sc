@@ -29,3 +29,16 @@ Following steps were executed.
         ```bash
        ./hack/prepare.sh
         ```
+4. To configure the Terraform provider to generate from, update the following
+   variables in `Makefile`:
+
+    ```makefile
+    export TERRAFORM_PROVIDER_SOURCE := hashicorp/aws
+    export TERRAFORM_PROVIDER_VERSION := 4.8.0
+    export TERRAFORM_PROVIDER_DOWNLOAD_NAME := terraform-provider-aws
+    export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX := https://releases.hashicorp.com/terraform-provider-aws/4.8.0
+    ```
+
+   You can find `TERRAFORM_PROVIDER_SOURCE` and `TERRAFORM_PROVIDER_VERSION` in
+   [Terraform AWS provider](https://registry.terraform.io/providers/hashicorp/aws/4.8.0/docs) documentation by hitting the "**USE PROVIDER**"
+   button. 
