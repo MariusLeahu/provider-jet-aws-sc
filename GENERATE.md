@@ -55,3 +55,15 @@ Following steps were executed.
 
 7. Add custom configuration for the two resources in [config/servicecatalog/config.go](config/servicecatalog/config.go) (empty at the moment),
 then call it in [config/provider.go](config/provider.go).  
+
+8. Generate
+   Corrected the dependency `github.com/google/go-cmp v0.5.7` in [go.mod](go.mod).
+
+   ```bash
+   # another dependency might be needed
+   go get github.com/crossplane/crossplane-runtime/pkg/reconciler/managed@v0.15.1-0.20220106140106-428b7c390375
+   
+   # generate
+   make generate
+   ```
+   

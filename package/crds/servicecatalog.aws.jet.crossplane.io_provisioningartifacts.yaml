@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: resources.null.awssc.jet.crossplane.io
+  name: provisioningartifacts.servicecatalog.aws.jet.crossplane.io
 spec:
-  group: null.awssc.jet.crossplane.io
+  group: servicecatalog.aws.jet.crossplane.io
   names:
     categories:
     - crossplane
     - managed
-    - awsscjet
-    kind: Resource
-    listKind: ResourceList
-    plural: resources
-    singular: resource
+    - awsjet
+    kind: ProvisioningArtifact
+    listKind: ProvisioningArtifactList
+    plural: provisioningartifacts
+    singular: provisioningartifact
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -35,7 +35,8 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Resource is the Schema for the Resources API
+        description: ProvisioningArtifact is the Schema for the ProvisioningArtifacts
+          API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -50,7 +51,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ResourceSpec defines the desired state of Resource
+            description: ProvisioningArtifactSpec defines the desired state of ProvisioningArtifact
             properties:
               deletionPolicy:
                 default: Delete
@@ -63,13 +64,33 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  triggers:
-                    additionalProperties:
-                      type: string
-                    description: A map of arbitrary strings that, when changed, will
-                      force the null resource to be replaced, re-running any associated
-                      provisioners.
-                    type: object
+                  acceptLanguage:
+                    type: string
+                  active:
+                    type: boolean
+                  description:
+                    type: string
+                  disableTemplateValidation:
+                    type: boolean
+                  guidance:
+                    type: string
+                  name:
+                    type: string
+                  productId:
+                    type: string
+                  region:
+                    description: Region is the region you'd like your resource to
+                      be created in.
+                    type: string
+                  templatePhysicalId:
+                    type: string
+                  templateUrl:
+                    type: string
+                  type:
+                    type: string
+                required:
+                - productId
+                - region
                 type: object
               providerConfigRef:
                 default:
@@ -116,10 +137,13 @@ spec:
             - forProvider
             type: object
           status:
-            description: ResourceStatus defines the observed state of Resource.
+            description: ProvisioningArtifactStatus defines the observed state of
+              ProvisioningArtifact.
             properties:
               atProvider:
                 properties:
+                  createdTime:
+                    type: string
                   id:
                     type: string
                 type: object
