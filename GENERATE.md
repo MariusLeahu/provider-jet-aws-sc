@@ -41,4 +41,8 @@ Following steps were executed.
 
    You can find `TERRAFORM_PROVIDER_SOURCE` and `TERRAFORM_PROVIDER_VERSION` in
    [Terraform AWS provider](https://registry.terraform.io/providers/hashicorp/aws/4.8.0/docs) documentation by hitting the "**USE PROVIDER**"
-   button. 
+   button.
+
+5. Implement `ProviderConfig` logic in [internal/clients/awssc.go](internal/clients/awssc.go). 
+
+   Copied and adapter from [provider-jet-aws repo](https://github.com/crossplane-contrib/provider-jet-aws/blob/v0.4.2/internal/clients/aws.go).  
