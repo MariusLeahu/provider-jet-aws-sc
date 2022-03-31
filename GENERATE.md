@@ -77,6 +77,6 @@ Create a github environment in settings and add the following secrets:
 
 ## Tag the version
 ```bash
-git tag -a v0.1.0
+git tag v0.1.0
 git push origin --tags
 ```
