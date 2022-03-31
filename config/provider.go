@@ -19,6 +19,7 @@ package config
 import (
 	// Note(turkenh): we are importing this to embed provider schema document
 	_ "embed"
+
 	"github.com/crossplane-contrib/provider-jet-awssc/config/servicecatalog"
 
 	tjconfig "github.com/crossplane/terrajet/pkg/config"
