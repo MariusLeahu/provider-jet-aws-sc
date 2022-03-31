@@ -20,14 +20,24 @@ import (
 	// Note(turkenh): we are importing this to embed provider schema document
 	_ "embed"
 
+	"github.com/crossplane-contrib/provider-jet-awssc/config/servicecatalog"
+
 	tjconfig "github.com/crossplane/terrajet/pkg/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
-	resourcePrefix = "template"
-	modulePath     = "github.com/crossplane-contrib/provider-jet-template"
+	resourcePrefix = "awssc"
+	modulePath     = "github.com/crossplane-contrib/provider-jet-awssc"
 )
+
+// IncludedResources lists all resource patterns included in small set release.
+var IncludedResources = []string{
+
+	// Service Catalog
+	"aws_servicecatalog_provisioning_artifact$",
+	"aws_servicecatalog_provisioned_product$",
+}
 
 //go:embed schema.json
 var providerSchema string
@@ -35,17 +45,29 @@ var providerSchema string
 // GetProvider returns provider configuration
 func GetProvider() *tjconfig.Provider {
 	defaultResourceFn := func(name string, terraformResource *schema.Resource, opts ...tjconfig.ResourceOption) *tjconfig.Resource {
-		r := tjconfig.DefaultResource(name, terraformResource)
+		r := tjconfig.DefaultResource(name, terraformResource,
+			GroupKindOverrides(),
+			KindOverrides(),
+			RegionAddition(),
+			TagsAllRemoval(),
+			IdentifierAssignedByAWS(),
+			NamePrefixRemoval(),
+			KnownReferencers(),
+		)
 		// Add any provider-specific defaulting here. For example:
 		//   r.ExternalName = tjconfig.IdentifierFromProvider
 		return r
 	}
 
 	pc := tjconfig.NewProviderWithSchema([]byte(providerSchema), resourcePrefix, modulePath,
+		tjconfig.WithShortName("awsjet"),
+		tjconfig.WithRootGroup("aws.jet.crossplane.io"),
+		tjconfig.WithIncludeList(IncludedResources),
 		tjconfig.WithDefaultResourceFn(defaultResourceFn))
 
 	for _, configure := range []func(provider *tjconfig.Provider){
 		// add custom config functions
+		servicecatalog.Configure,
 	} {
 		configure(pc)
 	}
