@@ -17,22 +17,32 @@ limitations under the License.
 package servicecatalog
 
 import (
+	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 	"github.com/crossplane/terrajet/pkg/config"
 )
 
 // Configure adds configurations for servicecatalog group.
 func Configure(p *config.Provider) {
 
-	/*	p.AddResourceConfigurator("aws_servicecatalog_provisioning_artifact", func(r *config.Resource) {
-			r.Version = common.VersionV1Alpha2
-			//r.ShortGroup = "servicecatalog"
-			r.ExternalName = config.IdentifierFromProvider
-		})
-
-		p.AddResourceConfigurator("aws_servicecatalog_provisioned_product", func(r *config.Resource) {
-			r.Version = common.VersionV1Alpha2
-			//r.ShortGroup = "servicecatalog"
-			r.ExternalName = config.IdentifierFromProvider
-		})
+	/*		p.AddResourceConfigurator("aws_servicecatalog_provisioning_artifact", func(r *config.Resource) {
+				r.Version = common.VersionV1Alpha2
+				//r.ShortGroup = "servicecatalog"
+				r.ExternalName = config.IdentifierFromProvider
+			})
 	*/
+
+	p.AddResourceConfigurator("aws_servicecatalog_provisioned_product", func(r *config.Resource) {
+		r.Version = common.VersionV1Alpha2
+		// r.ShortGroup = "servicecatalog"
+		// r.ExternalName = config.IdentifierFromProvider
+		r.UseAsync = true
+
+		r.References["subnet_ids"] = config.Reference{
+			Type:              "github.com/crossplane/provider-aws/blob/master/apis/ec2/v1beta1.Subnet",
+			RefFieldName:      "SubnetIdRefs",
+			SelectorFieldName: "SubnetIdSelector",
+		}
+
+	})
+
 }

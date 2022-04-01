@@ -1,11 +1,11 @@
-# Terrajet AWSSC Provider
+# Terrajet AWS Service Catalog Provider
 
 `provider-jet-awssc` is a [Crossplane](https://crossplane.io/) provider that is built
 using [Terrajet](https://github.com/crossplane/terrajet) code generation tools and exposes XRM-compliant managed
 resources for the AWSSC API.
 
 It is based on [Terraform AWS provider 4.8.0](https://registry.terraform.io/providers/hashicorp/aws/4.8.0/docs) and
-contains the following resources:
+contains the following resources for AWS Service Catalog:
 
 * [aws_servicecatalog_provisioning_artifact](https://registry.terraform.io/providers/hashicorp/aws/4.8.0/docs/resources/servicecatalog_provisioning_artifact)
 * [aws_servicecatalog_provisioned_product](https://registry.terraform.io/providers/hashicorp/aws/4.8.0/docs/resources/servicecatalog_provisioned_product)
