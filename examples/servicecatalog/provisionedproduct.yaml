@@ -1,0 +1,19 @@
+apiVersion: servicecatalog.aws.jet.crossplane.io/v1alpha1
+kind: ProvisionedProduct
+metadata:
+  name: sample-product
+spec:
+  forProvider:
+    name: "sample-product"
+    region: "eu-central-1"
+    productId: "prod-rmcu3hg434433"
+    provisioningArtifactId: "pa-kpqhgbsw1234e"
+    provisioningParameters:
+      - key: "SubnetId"
+        value: "subnet-06447735143b22222"
+      - key: "VpcId"
+        value: "vpc-0a20efe16ba623333"
+      - key: "KeyName"
+        value: "-ec2-keypair"
+  providerConfigRef:
+    name: providerconfig-jet-awssc
