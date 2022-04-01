@@ -17,7 +17,6 @@ limitations under the License.
 package servicecatalog
 
 import (
-	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 	"github.com/crossplane/terrajet/pkg/config"
 )
 
@@ -32,7 +31,7 @@ func Configure(p *config.Provider) {
 	*/
 
 	p.AddResourceConfigurator("aws_servicecatalog_provisioned_product", func(r *config.Resource) {
-		r.Version = common.VersionV1Alpha2
+		// r.Version = common.VersionV1Alpha2
 		// r.ShortGroup = "servicecatalog"
 		// r.ExternalName = config.IdentifierFromProvider
 		r.UseAsync = true
