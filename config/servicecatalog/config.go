@@ -26,15 +26,13 @@ func Configure(p *config.Provider) {
 
 	p.AddResourceConfigurator("aws_servicecatalog_provisioning_artifact", func(r *config.Resource) {
 		r.Version = common.VersionV1Alpha2
-		// r.ShortGroup = "servicecatalog"
 		// r.ExternalName = config.IdentifierFromProvider
 	})
 
 	p.AddResourceConfigurator("aws_servicecatalog_provisioned_product", func(r *config.Resource) {
 		r.Version = common.VersionV1Alpha2
-		// r.ShortGroup = "servicecatalog"
 		// r.ExternalName = config.IdentifierFromProvider
-		// r.UseAsync = true
+		r.UseAsync = true
 
 		/*		r.References["subnet_ids"] = config.Reference{
 					//Type:              "github.com/crossplane/provider-aws/apis/ec2/v1beta1.Subnet",
