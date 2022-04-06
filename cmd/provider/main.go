@@ -96,7 +96,7 @@ func main() {
 			MaxConcurrentReconciles: 1,
 			Features:                &feature.Flags{},
 		},
-		Provider:       config.GetProvider(&ot),
+		Provider:       config.GetProviderWithTimeouts(&ot),
 		WorkspaceStore: terraform.NewWorkspaceStore(log),
 		SetupFn:        clients.TerraformSetupBuilder(*terraformVersion, *providerSource, *providerVersion),
 	}
