@@ -22,18 +22,20 @@ import (
 )
 
 // Configure adds configurations for servicecatalog group.
-func Configure(p *config.Provider) {
+func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 
 	p.AddResourceConfigurator("aws_servicecatalog_provisioning_artifact", func(r *config.Resource) {
 		r.Version = common.VersionV1Alpha2
 		// r.ExternalName = config.IdentifierFromProvider
+		r.UseAsync = true
+		r.OperationTimeouts = *ot
 	})
 
 	p.AddResourceConfigurator("aws_servicecatalog_provisioned_product", func(r *config.Resource) {
 		r.Version = common.VersionV1Alpha2
 		// r.ExternalName = config.IdentifierFromProvider
 		r.UseAsync = true
-
+		r.OperationTimeouts = *ot
 		/*		r.References["subnet_ids"] = config.Reference{
 					//Type:              "github.com/crossplane/provider-aws/apis/ec2/v1beta1.Subnet",
 					//RefFieldName:      "SubnetIdRefs",

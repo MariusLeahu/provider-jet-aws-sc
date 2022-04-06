@@ -1,0 +1,19 @@
+apiVersion: pkg.crossplane.io/v1alpha1
+kind: ControllerConfig
+metadata:
+  name: config-jet-awssc
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<accountid>:role/<role>
+spec:
+  args:
+    - --debug
+    - --terraform-read-timeout=30m
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-jet-awssc
+spec:
+  package: mleahu/provider-jet-awssc:v0.1.2
+  controllerConfigRef:
+    name: config-jet-awssc

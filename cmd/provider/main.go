@@ -28,6 +28,7 @@ import (
 	xpcontroller "github.com/crossplane/crossplane-runtime/pkg/controller"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
+	tjconfig "github.com/crossplane/terrajet/pkg/config"
 	"github.com/crossplane/terrajet/pkg/terraform"
 	"gopkg.in/alecthomas/kingpin.v2"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -49,6 +50,10 @@ func main() {
 		providerSource   = app.Flag("terraform-provider-source", "Terraform provider source.").Required().Envar("TERRAFORM_PROVIDER_SOURCE").String()
 		providerVersion  = app.Flag("terraform-provider-version", "Terraform provider version.").Required().Envar("TERRAFORM_PROVIDER_VERSION").String()
 		maxReconcileRate = app.Flag("max-reconcile-rate", "The global maximum rate per second at which resources may checked for drift from the desired state.").Default("10").Int()
+		tfReadTimeout    = app.Flag("terraform-read-timeout", "Timeout for Terraform read operations 300ms, 1.5h, or 2h45m").Default("10m").Duration()
+		tfCreateTimeout  = app.Flag("terraform-create-timeout", "Timeout for Terraform create operations 300ms, 1.5h, or 2h45m").Default("30m").Duration()
+		tfUpdateTimeout  = app.Flag("terraform-update-timeout", "Timeout for Terraform update operations 300ms, 1.5h, or 2h45m").Default("30m").Duration()
+		tfDeleteTimeout  = app.Flag("terraform-delete-timeout", "Timeout for Terraform delete operations 300ms, 1.5h, or 2h45m").Default("30m").Duration()
 	)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
@@ -62,6 +67,14 @@ func main() {
 	}
 
 	log.Debug("Starting", "sync-period", syncPeriod.String())
+
+	var ot = tjconfig.OperationTimeouts{
+		Read:   *tfReadTimeout,
+		Create: *tfCreateTimeout,
+		Update: *tfUpdateTimeout,
+		Delete: *tfDeleteTimeout,
+	}
+	log.Debug("Set Terraform operation timeouts to", ot)
 
 	cfg, err := ctrl.GetConfig()
 	kingpin.FatalIfError(err, "Cannot get API server rest config")
@@ -83,7 +96,7 @@ func main() {
 			MaxConcurrentReconciles: 1,
 			Features:                &feature.Flags{},
 		},
-		Provider:       config.GetProvider(),
+		Provider:       config.GetProvider(&ot),
 		WorkspaceStore: terraform.NewWorkspaceStore(log),
 		SetupFn:        clients.TerraformSetupBuilder(*terraformVersion, *providerSource, *providerVersion),
 	}
