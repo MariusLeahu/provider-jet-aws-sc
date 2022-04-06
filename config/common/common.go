@@ -17,10 +17,11 @@ limitations under the License.
 package common
 
 import (
+	"time"
+
 	"github.com/crossplane/crossplane-runtime/pkg/fieldpath"
 	"github.com/crossplane/crossplane-runtime/pkg/reference"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
-	"time"
 )
 
 const (
@@ -35,16 +36,16 @@ const (
 	// resources.
 	VersionV1Alpha2 = "v1alpha2"
 
-	// Default Terraform read timeout
+	// TerraformReadTimeout Default Terraform read timeout
 	TerraformReadTimeout = 10 * time.Minute
 
-	// Default Terraform create timeout
+	// TerraformCreateTimeout Default Terraform create timeout
 	TerraformCreateTimeout = 30 * time.Minute
 
-	// Default Terraform update timeout
+	// TerraformUpdateTimeout Default Terraform update timeout
 	TerraformUpdateTimeout = 30 * time.Minute
 
-	// Default Terraform delete timeout
+	// TerraformDeleteTimeout Default Terraform delete timeout
 	TerraformDeleteTimeout = 30 * time.Minute
 )
 

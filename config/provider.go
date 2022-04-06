@@ -19,8 +19,9 @@ package config
 import (
 	// Note(turkenh): we are importing this to embed provider schema document
 	_ "embed"
-	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 	"time"
+
+	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 
 	"github.com/crossplane-contrib/provider-jet-awssc/config/servicecatalog"
 
@@ -62,7 +63,7 @@ func GetProvider() *tjconfig.Provider {
 	return GetProviderWithTimeouts(&ot)
 }
 
-// GetProvider returns provider configuration
+// GetProviderWithTimeouts returns provider configuration
 func GetProviderWithTimeouts(ot *tjconfig.OperationTimeouts) *tjconfig.Provider {
 	defaultResourceFn := func(name string, terraformResource *schema.Resource, opts ...tjconfig.ResourceOption) *tjconfig.Resource {
 		r := tjconfig.DefaultResource(name, terraformResource,
