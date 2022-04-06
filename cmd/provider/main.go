@@ -74,7 +74,7 @@ func main() {
 		Update: *tfUpdateTimeout,
 		Delete: *tfDeleteTimeout,
 	}
-	log.Debug("Set Terraform operation timeouts to", ot)
+	log.Debug("Set Terraform operation timeouts", "operation-timeouts", ot)
 
 	cfg, err := ctrl.GetConfig()
 	kingpin.FatalIfError(err, "Cannot get API server rest config")
