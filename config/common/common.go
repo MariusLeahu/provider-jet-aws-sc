@@ -17,6 +17,8 @@ limitations under the License.
 package common
 
 import (
+	"time"
+
 	"github.com/crossplane/crossplane-runtime/pkg/fieldpath"
 	"github.com/crossplane/crossplane-runtime/pkg/reference"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
@@ -33,6 +35,18 @@ const (
 	// VersionV1Alpha2 is used as minimum version for all manually configured
 	// resources.
 	VersionV1Alpha2 = "v1alpha2"
+
+	// TerraformReadTimeout Default Terraform read timeout
+	TerraformReadTimeout = 10 * time.Minute
+
+	// TerraformCreateTimeout Default Terraform create timeout
+	TerraformCreateTimeout = 30 * time.Minute
+
+	// TerraformUpdateTimeout Default Terraform update timeout
+	TerraformUpdateTimeout = 30 * time.Minute
+
+	// TerraformDeleteTimeout Default Terraform delete timeout
+	TerraformDeleteTimeout = 30 * time.Minute
 )
 
 // ARNExtractor extracts ARN of the resources from "status.atProvider.arn" which

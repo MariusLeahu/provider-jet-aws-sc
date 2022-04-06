@@ -19,6 +19,9 @@ package config
 import (
 	// Note(turkenh): we are importing this to embed provider schema document
 	_ "embed"
+	"time"
+
+	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 
 	"github.com/crossplane-contrib/provider-jet-awssc/config/servicecatalog"
 
@@ -39,11 +42,29 @@ var IncludedResources = []string{
 	"aws_servicecatalog_provisioned_product$",
 }
 
+// Options for this Provider.
+type Options struct {
+
+	// Terraform ReadTimeout
+	PollInterval time.Duration
+}
+
 //go:embed schema.json
 var providerSchema string
 
 // GetProvider returns provider configuration
 func GetProvider() *tjconfig.Provider {
+	var ot = tjconfig.OperationTimeouts{
+		Read:   common.TerraformReadTimeout,
+		Create: common.TerraformCreateTimeout,
+		Update: common.TerraformUpdateTimeout,
+		Delete: common.TerraformDeleteTimeout,
+	}
+	return GetProviderWithTimeouts(&ot)
+}
+
+// GetProviderWithTimeouts returns provider configuration
+func GetProviderWithTimeouts(ot *tjconfig.OperationTimeouts) *tjconfig.Provider {
 	defaultResourceFn := func(name string, terraformResource *schema.Resource, opts ...tjconfig.ResourceOption) *tjconfig.Resource {
 		r := tjconfig.DefaultResource(name, terraformResource,
 			GroupKindOverrides(),
@@ -65,11 +86,11 @@ func GetProvider() *tjconfig.Provider {
 		tjconfig.WithIncludeList(IncludedResources),
 		tjconfig.WithDefaultResourceFn(defaultResourceFn))
 
-	for _, configure := range []func(provider *tjconfig.Provider){
+	for _, configure := range []func(provider *tjconfig.Provider, ot *tjconfig.OperationTimeouts){
 		// add custom config functions
 		servicecatalog.Configure,
 	} {
-		configure(pc)
+		configure(pc, ot)
 	}
 
 	pc.ConfigureResources()

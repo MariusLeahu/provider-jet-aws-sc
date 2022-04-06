@@ -29,16 +29,18 @@ import (
 	"github.com/crossplane/terrajet/pkg/terraform"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	v1alpha1 "github.com/crossplane-contrib/provider-jet-awssc/apis/servicecatalog/v1alpha1"
+	v1alpha2 "github.com/crossplane-contrib/provider-jet-awssc/apis/servicecatalog/v1alpha2"
 )
 
 // Setup adds a controller that reconciles ProvisioningArtifact managed resources.
 func Setup(mgr ctrl.Manager, o tjcontroller.Options) error {
-	name := managed.ControllerName(v1alpha1.ProvisioningArtifact_GroupVersionKind.String())
+	name := managed.ControllerName(v1alpha2.ProvisioningArtifact_GroupVersionKind.String())
 	var initializers managed.InitializerChain
 	r := managed.NewReconciler(mgr,
-		xpresource.ManagedKind(v1alpha1.ProvisioningArtifact_GroupVersionKind),
-		managed.WithExternalConnecter(tjcontroller.NewConnector(mgr.GetClient(), o.WorkspaceStore, o.SetupFn, o.Provider.Resources["aws_servicecatalog_provisioning_artifact"])),
+		xpresource.ManagedKind(v1alpha2.ProvisioningArtifact_GroupVersionKind),
+		managed.WithExternalConnecter(tjcontroller.NewConnector(mgr.GetClient(), o.WorkspaceStore, o.SetupFn, o.Provider.Resources["aws_servicecatalog_provisioning_artifact"],
+			tjcontroller.WithCallbackProvider(tjcontroller.NewAPICallbacks(mgr, xpresource.ManagedKind(v1alpha2.ProvisioningArtifact_GroupVersionKind))),
+		)),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
 		managed.WithFinalizer(terraform.NewWorkspaceFinalizer(o.WorkspaceStore, xpresource.NewAPIFinalizer(mgr.GetClient(), managed.FinalizerName))),
@@ -49,6 +51,6 @@ func Setup(mgr ctrl.Manager, o tjcontroller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o.ForControllerRuntime()).
-		For(&v1alpha1.ProvisioningArtifact{}).
+		For(&v1alpha2.ProvisioningArtifact{}).
 		Complete(ratelimiter.NewReconciler(name, r, o.GlobalRateLimiter))
 }
