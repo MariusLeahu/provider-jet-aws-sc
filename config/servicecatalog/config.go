@@ -17,6 +17,8 @@ limitations under the License.
 package servicecatalog
 
 import (
+	"strconv"
+
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/terrajet/pkg/config"
@@ -60,7 +62,7 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 			if oa, ok := attr["outputs"].([]interface{}); ok {
 				log.Debug("attr outputs", "outputs", oa)
 				for im, om := range oa {
-					log.Debug("attr output map[i]", im, om)
+					log.Debug("attr output map[i]", strconv.Itoa(im), om)
 					if m, okm := om.(map[string]string); okm {
 						if k, okk := m["key"]; okk {
 							if v, okv := m["value"]; okv {
