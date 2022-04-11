@@ -17,8 +17,6 @@ limitations under the License.
 package servicecatalog
 
 import (
-	"strconv"
-
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/terrajet/pkg/config"
@@ -55,24 +53,21 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 			zl := zap.New(zap.UseDevMode(true))
 			log := logging.NewLogrLogger(zl.WithName("provider-jet-awssc"))
 
-			log.Debug("r.Sensitive.AdditionalConnectionDetailsFn", "attr", attr)
-
 			conn := map[string][]byte{}
 
 			if oa, ok := attr["outputs"].([]interface{}); ok {
-				log.Debug("attr outputs", "outputs", oa)
-				for im, om := range oa {
-					log.Debug("attr output map[i]", strconv.Itoa(im), om)
+				for _, om := range oa {
 					if m, ok := om.(map[string]interface{}); ok {
 						if k, ok := m["key"].(string); ok {
 							if v, ok := m["value"].(string); ok {
 								conn[k] = []byte(v)
-								log.Debug("add conn details", k, v)
 							}
 						}
 					}
 				}
 			}
+
+			log.Debug("add conn details", conn)
 
 			return conn, nil
 		}
