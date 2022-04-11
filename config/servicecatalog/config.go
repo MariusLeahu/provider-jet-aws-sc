@@ -17,10 +17,10 @@ limitations under the License.
 package servicecatalog
 
 import (
-	"fmt"
-
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
+	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/terrajet/pkg/config"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 // Configure adds configurations for servicecatalog group.
@@ -50,8 +50,12 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 
 		// save the outputs as a map
 		r.Sensitive.AdditionalConnectionDetailsFn = func(attr map[string]interface{}) (map[string][]byte, error) {
+			zl := zap.New(zap.UseDevMode(true))
+			log := logging.NewLogrLogger(zl.WithName("provider-jet-awssc"))
+
 			conn := map[string][]byte{}
-			fmt.Println("attr in AdditionalConnectionDetailsFn", attr)
+			log.Debug("r.Sensitive.AdditionalConnectionDetailsFn", "attr", attr)
+
 			/*			if o, ok := attr["outputs"].()
 						if a, ok := attr["connection_name"].(string); ok {
 							conn[CloudSQLSecretConnectionName] = []byte(a)
