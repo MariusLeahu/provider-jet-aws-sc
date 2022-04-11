@@ -67,7 +67,7 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 				}
 			}
 
-			log.Debug("add conn details", conn)
+			log.Debug("add conn details", "secrets", conn)
 
 			return conn, nil
 		}
