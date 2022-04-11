@@ -57,14 +57,16 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 
 			conn := map[string][]byte{}
 
-			if o, ok := attr["outputs"].([]map[string]interface{}); ok {
-				log.Debug("attr outputs", "outputs", o)
-				for i, m := range o {
-					log.Debug("attr outputs[i]", i, m)
-					if k, okk := m["key"].(string); okk {
-						if v, okv := m["value"].(string); okv {
-							conn[k] = []byte(v)
-							log.Debug("add conn details", k, v)
+			if oa, ok := attr["outputs"].([]interface{}); ok {
+				log.Debug("attr outputs", "outputs", oa)
+				for im, om := range oa {
+					log.Debug("attr output map[i]", im, om)
+					if m, okm := om.(map[string]string); okm {
+						if k, okk := m["key"]; okk {
+							if v, okv := m["value"]; okv {
+								conn[k] = []byte(v)
+								log.Debug("add conn details", k, v)
+							}
 						}
 					}
 				}
