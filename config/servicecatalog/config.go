@@ -53,43 +53,23 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 			zl := zap.New(zap.UseDevMode(true))
 			log := logging.NewLogrLogger(zl.WithName("provider-jet-awssc"))
 
-			conn := map[string][]byte{}
 			log.Debug("r.Sensitive.AdditionalConnectionDetailsFn", "attr", attr)
 
-			/*			if o, ok := attr["outputs"].()
-						if a, ok := attr["connection_name"].(string); ok {
-							conn[CloudSQLSecretConnectionName] = []byte(a)
+			conn := map[string][]byte{}
+
+			if o, ok := attr["outputs"].([]map[string]interface{}); ok {
+				for i, m := range o {
+					log.Debug("attr outputs[i]", i, m)
+					if k, okk := m["key"].(string); okk {
+						if v, okv := m["value"].(string); okv {
+							conn[k] = []byte(v)
+							log.Debug("add conn details", k, v)
 						}
-						if a, ok := attr["private_ip_address"].(string); ok {
-							conn[PrivateIPKey] = []byte(a)
-						}
-						if a, ok := attr["public_ip_address"].(string); ok {
-							conn[PublicIPKey] = []byte(a)
-						}
-						if a, ok := attr["root_password"].(string); ok {
-							conn[xpv1.ResourceCredentialsSecretPasswordKey] = []byte(a)
-						}
-						// map
-						if certSlice, ok := attr["server_ca_cert"].([]interface{}); ok {
-							if certattrs, ok := certSlice[0].(map[string]interface{}); ok {
-								if a, ok := certattrs["cert"].(string); ok {
-									conn[CloudSQLSecretServerCACertificateCertKey] = []byte(a)
-								}
-								if a, ok := certattrs["common_name"].(string); ok {
-									conn[CloudSQLSecretServerCACertificateCommonNameKey] = []byte(a)
-								}
-								if a, ok := certattrs["create_time"].(string); ok {
-									conn[CloudSQLSecretServerCACertificateCreateTimeKey] = []byte(a)
-								}
-								if a, ok := certattrs["expiration_time"].(string); ok {
-									conn[CloudSQLSecretServerCACertificateExpirationTimeKey] = []byte(a)
-								}
-								if a, ok := certattrs["sha1_fingerprint"].(string); ok {
-									conn[CloudSQLSecretServerCACertificateSha1FingerprintKey] = []byte(a)
-								}
-							}
-						}
-			*/return conn, nil
+					}
+				}
+			}
+
+			return conn, nil
 		}
 	})
 
