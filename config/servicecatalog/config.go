@@ -17,6 +17,8 @@ limitations under the License.
 package servicecatalog
 
 import (
+	"fmt"
+
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 	"github.com/crossplane/terrajet/pkg/config"
 )
@@ -45,6 +47,46 @@ func Configure(p *config.Provider, ot *config.OperationTimeouts) {
 					SelectorFieldName: "SubnetIdSelector",
 				}
 		*/
+
+		// save the outputs as a map
+		r.Sensitive.AdditionalConnectionDetailsFn = func(attr map[string]interface{}) (map[string][]byte, error) {
+			conn := map[string][]byte{}
+			fmt.Println("attr in AdditionalConnectionDetailsFn", attr)
+			/*			if o, ok := attr["outputs"].()
+						if a, ok := attr["connection_name"].(string); ok {
+							conn[CloudSQLSecretConnectionName] = []byte(a)
+						}
+						if a, ok := attr["private_ip_address"].(string); ok {
+							conn[PrivateIPKey] = []byte(a)
+						}
+						if a, ok := attr["public_ip_address"].(string); ok {
+							conn[PublicIPKey] = []byte(a)
+						}
+						if a, ok := attr["root_password"].(string); ok {
+							conn[xpv1.ResourceCredentialsSecretPasswordKey] = []byte(a)
+						}
+						// map
+						if certSlice, ok := attr["server_ca_cert"].([]interface{}); ok {
+							if certattrs, ok := certSlice[0].(map[string]interface{}); ok {
+								if a, ok := certattrs["cert"].(string); ok {
+									conn[CloudSQLSecretServerCACertificateCertKey] = []byte(a)
+								}
+								if a, ok := certattrs["common_name"].(string); ok {
+									conn[CloudSQLSecretServerCACertificateCommonNameKey] = []byte(a)
+								}
+								if a, ok := certattrs["create_time"].(string); ok {
+									conn[CloudSQLSecretServerCACertificateCreateTimeKey] = []byte(a)
+								}
+								if a, ok := certattrs["expiration_time"].(string); ok {
+									conn[CloudSQLSecretServerCACertificateExpirationTimeKey] = []byte(a)
+								}
+								if a, ok := certattrs["sha1_fingerprint"].(string); ok {
+									conn[CloudSQLSecretServerCACertificateSha1FingerprintKey] = []byte(a)
+								}
+							}
+						}
+			*/return conn, nil
+		}
 	})
 
 }
