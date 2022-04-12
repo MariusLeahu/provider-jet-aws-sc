@@ -24,17 +24,26 @@ import (
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/fieldpath"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+	xpabeta1 "github.com/crossplane/provider-aws/apis/v1beta1"
 	xpawsclient "github.com/crossplane/provider-aws/pkg/clients"
-	"github.com/crossplane/terrajet/pkg/terraform"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/crossplane/terrajet/pkg/terraform"
+
 	"github.com/crossplane-contrib/provider-jet-awssc/apis/v1alpha1"
 )
 
 const (
+	// error messages
+	errNoProviderConfig   = "no providerConfigRef provided"
+	errGetProviderConfig  = "cannot get referenced ProviderConfig"
+	errTrackUsage         = "cannot track ProviderConfig usage"
+	errExtractCredentials = "cannot extract credentials"
+	// errUnmarshalCredentials = "cannot unmarshal template credentials as JSON"
+
 	// AWS credentials environment variable names
 	envSessionToken    = "AWS_SESSION_TOKEN"
 	envAccessKeyID     = "AWS_ACCESS_KEY_ID"
@@ -43,10 +52,9 @@ const (
 	fmtEnvVar = "%s=%s"
 )
 
-// TerraformSetupBuilder returns Terraform setup with provider specific
-// configuration like provider credentials used to connect to cloud APIs in the
-// expected form of a Terraform provider.
-func TerraformSetupBuilder(version, providerSource, providerVersion string) terraform.SetupFn { //nolint:gocyclo
+// TerraformSetupBuilder builds a terraform.SetupFn function which
+// returns Terraform provider setup configuration
+func TerraformSetupBuilder(version, providerSource, providerVersion string) terraform.SetupFn { // nolint: gocyclo
 	return func(ctx context.Context, client client.Client, mg resource.Managed) (terraform.Setup, error) {
 		ps := terraform.Setup{
 			Version: version,
@@ -56,12 +64,13 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 			},
 		}
 
-		if mg.GetProviderConfigReference() == nil {
-			return ps, errors.New("no providerConfigRef provided")
+		configRef := mg.GetProviderConfigReference()
+		if configRef == nil {
+			return ps, errors.New(errNoProviderConfig)
 		}
 		pc := &v1alpha1.ProviderConfig{}
-		if err := client.Get(ctx, types.NamespacedName{Name: mg.GetProviderConfigReference().Name}, pc); err != nil {
-			return ps, errors.Wrap(err, "cannot get referenced Provider")
+		if err := client.Get(ctx, types.NamespacedName{Name: configRef.Name}, pc); err != nil {
+			return ps, errors.Wrap(err, errGetProviderConfig)
 		}
 
 		region, err := getRegion(mg)
@@ -71,26 +80,46 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 
 		t := resource.NewProviderConfigUsageTracker(client, &v1alpha1.ProviderConfigUsage{})
 		if err := t.Track(ctx, mg); err != nil {
-			return ps, errors.Wrap(err, "cannot track ProviderConfig usage")
+			return ps, errors.Wrap(err, errTrackUsage)
 		}
 
 		var cfg *aws.Config
+		xpapc := &xpabeta1.ProviderConfig{
+			Spec: xpabeta1.ProviderConfigSpec{
+				Credentials:   xpabeta1.ProviderCredentials(pc.Spec.Credentials),
+				AssumeRoleARN: pc.Spec.AssumeRoleARN,
+			},
+		}
+
 		switch s := pc.Spec.Credentials.Source; s { //nolint:exhaustive
 		case xpv1.CredentialsSourceInjectedIdentity:
-			if cfg, err = xpawsclient.UsePodServiceAccount(ctx, []byte{}, xpawsclient.DefaultSection, region); err != nil {
-				return ps, errors.Wrap(err, "failed to use pod service account")
+			if pc.Spec.AssumeRoleARN != nil {
+				if cfg, err = xpawsclient.UsePodServiceAccountAssumeRole(ctx, []byte{}, xpawsclient.DefaultSection, region, xpapc); err != nil {
+					return ps, errors.Wrap(err, "failed to use pod service account assumeRoleARN")
+				}
+			} else {
+				if cfg, err = xpawsclient.UsePodServiceAccount(ctx, []byte{}, xpawsclient.DefaultSection, region); err != nil {
+					return ps, errors.Wrap(err, "failed to use pod service account")
+				}
 			}
 		default:
 			data, err := resource.CommonCredentialExtractor(ctx, s, client, pc.Spec.Credentials.CommonCredentialSelectors)
 			if err != nil {
-				return ps, errors.Wrap(err, "cannot get credentials")
+				return ps, errors.Wrap(err, errExtractCredentials)
 			}
-			if cfg, err = xpawsclient.UseProviderSecret(ctx, data, xpawsclient.DefaultSection, region); err != nil {
-				return ps, errors.Wrap(err, "failed to use provider secret")
+			if pc.Spec.AssumeRoleARN != nil {
+				if cfg, err = xpawsclient.UseProviderSecretAssumeRole(ctx, data, xpawsclient.DefaultSection, region, xpapc); err != nil {
+					return ps, errors.Wrap(err, "failed to use provider secret assumeRoleARN")
+				}
+			} else {
+				if cfg, err = xpawsclient.UseProviderSecret(ctx, data, xpawsclient.DefaultSection, region); err != nil {
+					return ps, errors.Wrap(err, "failed to use provider secret")
+				}
 			}
 		}
-		awsConf := xpawsclient.SetResolver(ctx, mg, cfg)
+		awsConf := xpawsclient.SetResolver(xpapc, cfg)
 		creds, err := awsConf.Credentials.Retrieve(ctx)
+
 		if err != nil {
 			return ps, errors.Wrap(err, "failed to retrieve aws credentials from aws config")
 		}
