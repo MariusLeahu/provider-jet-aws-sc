@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package lambda
+package cloudwatch
 
 import (
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
@@ -23,17 +23,27 @@ import (
 
 // Configure adds configurations for lambda group.
 func Configure(p *config.Provider, ot *config.OperationTimeouts) {
-
-	p.AddResourceConfigurator("aws_lambda_function", func(r *config.Resource) {
+	p.AddResourceConfigurator("aws_cloudwatch_composite_alarm", func(r *config.Resource) {
 		r.Version = common.VersionV1Alpha1
 		r.UseAsync = true
 		r.OperationTimeouts = *ot
 	})
 
-	p.AddResourceConfigurator("aws_lambda_event_source_mapping", func(r *config.Resource) {
+	p.AddResourceConfigurator("aws_cloudwatch_dashboard", func(r *config.Resource) {
 		r.Version = common.VersionV1Alpha1
 		r.UseAsync = true
 		r.OperationTimeouts = *ot
 	})
 
+	p.AddResourceConfigurator("aws_cloudwatch_metric_alarm", func(r *config.Resource) {
+		r.Version = common.VersionV1Alpha1
+		r.UseAsync = true
+		r.OperationTimeouts = *ot
+	})
+
+	p.AddResourceConfigurator("aws_cloudwatch_metric_stream", func(r *config.Resource) {
+		r.Version = common.VersionV1Alpha1
+		r.UseAsync = true
+		r.OperationTimeouts = *ot
+	})
 }
