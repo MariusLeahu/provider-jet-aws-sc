@@ -21,6 +21,8 @@ import (
 
 	"github.com/crossplane/terrajet/pkg/controller"
 
+	eventsourcemapping "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/lambda/eventsourcemapping"
+	function "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/lambda/function"
 	providerconfig "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/providerconfig"
 	provisionedproduct "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/servicecatalog/provisionedproduct"
 	provisioningartifact "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/servicecatalog/provisioningartifact"
@@ -30,6 +32,8 @@ import (
 // the supplied manager.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
+		eventsourcemapping.Setup,
+		function.Setup,
 		providerconfig.Setup,
 		provisionedproduct.Setup,
 		provisioningartifact.Setup,

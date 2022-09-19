@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: provisionedproducts.servicecatalog.aws.jet.crossplane.io
+  name: eventsourcemappings.lambda.aws.jet.crossplane.io
 spec:
-  group: servicecatalog.aws.jet.crossplane.io
+  group: lambda.aws.jet.crossplane.io
   names:
     categories:
     - crossplane
     - managed
     - awsjet
-    kind: ProvisionedProduct
-    listKind: ProvisionedProductList
-    plural: provisionedproducts
-    singular: provisionedproduct
+    kind: EventSourceMapping
+    listKind: EventSourceMappingList
+    plural: eventsourcemappings
+    singular: eventsourcemapping
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -32,10 +32,10 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    name: v1alpha2
+    name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ProvisionedProduct is the Schema for the ProvisionedProducts
+        description: EventSourceMapping is the Schema for the EventSourceMappings
           API
         properties:
           apiVersion:
@@ -51,7 +51,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProvisionedProductSpec defines the desired state of ProvisionedProduct
+            description: EventSourceMappingSpec defines the desired state of EventSourceMapping
             properties:
               deletionPolicy:
                 default: Delete
@@ -64,74 +64,97 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  acceptLanguage:
-                    type: string
-                  ignoreErrors:
+                  batchSize:
+                    type: number
+                  bisectBatchOnFunctionError:
                     type: boolean
-                  name:
+                  destinationConfig:
+                    items:
+                      properties:
+                        onFailure:
+                          items:
+                            properties:
+                              destinationArn:
+                                type: string
+                            required:
+                            - destinationArn
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  enabled:
+                    type: boolean
+                  eventSourceArn:
                     type: string
-                  notificationArns:
+                  filterCriteria:
+                    items:
+                      properties:
+                        filter:
+                          items:
+                            properties:
+                              pattern:
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  functionName:
+                    type: string
+                  functionResponseTypes:
                     items:
                       type: string
                     type: array
-                  pathId:
-                    type: string
-                  pathName:
-                    type: string
-                  productId:
-                    type: string
-                  productName:
-                    type: string
-                  provisioningArtifactId:
-                    type: string
-                  provisioningArtifactName:
-                    type: string
-                  provisioningParameters:
+                  maximumBatchingWindowInSeconds:
+                    type: number
+                  maximumRecordAgeInSeconds:
+                    type: number
+                  maximumRetryAttempts:
+                    type: number
+                  parallelizationFactor:
+                    type: number
+                  queues:
                     items:
-                      properties:
-                        key:
-                          type: string
-                        usePreviousValue:
-                          type: boolean
-                        value:
-                          type: string
-                      required:
-                      - key
-                      type: object
+                      type: string
                     type: array
                   region:
                     description: Region is the region you'd like your resource to
                       be created in.
                     type: string
-                  retainPhysicalResources:
-                    type: boolean
-                  stackSetProvisioningPreferences:
+                  selfManagedEventSource:
                     items:
                       properties:
-                        accounts:
-                          items:
+                        endpoints:
+                          additionalProperties:
                             type: string
-                          type: array
-                        failureToleranceCount:
-                          type: number
-                        failureTolerancePercentage:
-                          type: number
-                        maxConcurrencyCount:
-                          type: number
-                        maxConcurrencyPercentage:
-                          type: number
-                        regions:
-                          items:
-                            type: string
-                          type: array
+                          type: object
+                      required:
+                      - endpoints
                       type: object
                     type: array
-                  tags:
-                    additionalProperties:
+                  sourceAccessConfiguration:
+                    items:
+                      properties:
+                        type:
+                          type: string
+                        uri:
+                          type: string
+                      required:
+                      - type
+                      - uri
+                      type: object
+                    type: array
+                  startingPosition:
+                    type: string
+                  startingPositionTimestamp:
+                    type: string
+                  topics:
+                    items:
                       type: string
-                    type: object
+                    type: array
+                  tumblingWindowInSeconds:
+                    type: number
                 required:
-                - name
+                - functionName
                 - region
                 type: object
               providerConfigRef:
@@ -231,48 +254,23 @@ spec:
             - forProvider
             type: object
           status:
-            description: ProvisionedProductStatus defines the observed state of ProvisionedProduct.
+            description: EventSourceMappingStatus defines the observed state of EventSourceMapping.
             properties:
               atProvider:
                 properties:
-                  arn:
-                    type: string
-                  cloudwatchDashboardNames:
-                    items:
-                      type: string
-                    type: array
-                  createdTime:
+                  functionArn:
                     type: string
                   id:
                     type: string
-                  lastProvisioningRecordId:
+                  lastModified:
                     type: string
-                  lastRecordId:
+                  lastProcessingResult:
                     type: string
-                  lastSuccessfulProvisioningRecordId:
+                  state:
                     type: string
-                  launchRoleArn:
+                  stateTransitionReason:
                     type: string
-                  outputs:
-                    items:
-                      properties:
-                        description:
-                          type: string
-                        key:
-                          type: string
-                        value:
-                          type: string
-                      type: object
-                    type: array
-                  status:
-                    type: string
-                  statusMessage:
-                    type: string
-                  tagsAll:
-                    additionalProperties:
-                      type: string
-                    type: object
-                  type:
+                  uuid:
                     type: string
                 type: object
               conditions:

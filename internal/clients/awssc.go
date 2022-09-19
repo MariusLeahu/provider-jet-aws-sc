@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The Crossplane Authors.
+Copyright 2022 The Crossplane Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,12 +18,13 @@ package clients
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/fieldpath"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+	xpabeta1 "github.com/crossplane/provider-aws/apis/v1beta1"
 	xpawsclient "github.com/crossplane/provider-aws/pkg/clients"
 	"github.com/crossplane/terrajet/pkg/terraform"
 	"github.com/pkg/errors"
@@ -35,12 +36,10 @@ import (
 )
 
 const (
-	// AWS credentials environment variable names
-	envSessionToken    = "AWS_SESSION_TOKEN"
-	envAccessKeyID     = "AWS_ACCESS_KEY_ID"
-	envSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
-
-	fmtEnvVar = "%s=%s"
+	// Terraform provider configuration keys for AWS credentials
+	keySessionToken    = "token"
+	keyAccessKeyID     = "access_key"
+	keySecretAccessKey = "secret_key"
 )
 
 // TerraformSetupBuilder returns Terraform setup with provider specific
@@ -75,22 +74,41 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 		}
 
 		var cfg *aws.Config
+		xpapc := &xpabeta1.ProviderConfig{
+			Spec: xpabeta1.ProviderConfigSpec{
+				Credentials:   xpabeta1.ProviderCredentials(pc.Spec.Credentials),
+				AssumeRoleARN: pc.Spec.AssumeRoleARN,
+			},
+		}
 		switch s := pc.Spec.Credentials.Source; s { //nolint:exhaustive
 		case xpv1.CredentialsSourceInjectedIdentity:
-			if cfg, err = xpawsclient.UsePodServiceAccount(ctx, []byte{}, xpawsclient.DefaultSection, region); err != nil {
-				return ps, errors.Wrap(err, "failed to use pod service account")
+			if pc.Spec.AssumeRoleARN != nil {
+				if cfg, err = xpawsclient.UsePodServiceAccountAssumeRole(ctx, []byte{}, xpawsclient.DefaultSection, region, xpapc); err != nil {
+					return ps, errors.Wrap(err, "failed to use pod service account assumeRoleARN")
+				}
+			} else {
+				if cfg, err = xpawsclient.UsePodServiceAccount(ctx, []byte{}, xpawsclient.DefaultSection, region); err != nil {
+					return ps, errors.Wrap(err, "failed to use pod service account")
+				}
 			}
 		default:
 			data, err := resource.CommonCredentialExtractor(ctx, s, client, pc.Spec.Credentials.CommonCredentialSelectors)
 			if err != nil {
 				return ps, errors.Wrap(err, "cannot get credentials")
 			}
-			if cfg, err = xpawsclient.UseProviderSecret(ctx, data, xpawsclient.DefaultSection, region); err != nil {
-				return ps, errors.Wrap(err, "failed to use provider secret")
+			if pc.Spec.AssumeRoleARN != nil {
+				if cfg, err = xpawsclient.UseProviderSecretAssumeRole(ctx, data, xpawsclient.DefaultSection, region, xpapc); err != nil {
+					return ps, errors.Wrap(err, "failed to use provider secret assumeRoleARN")
+				}
+			} else {
+				if cfg, err = xpawsclient.UseProviderSecret(ctx, data, xpawsclient.DefaultSection, region); err != nil {
+					return ps, errors.Wrap(err, "failed to use provider secret")
+				}
 			}
 		}
-		awsConf := xpawsclient.SetResolver(ctx, mg, cfg)
+		awsConf := xpawsclient.SetResolver(xpapc, cfg)
 		creds, err := awsConf.Credentials.Retrieve(ctx)
+
 		if err != nil {
 			return ps, errors.Wrap(err, "failed to retrieve aws credentials from aws config")
 		}
@@ -108,14 +126,11 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 			tfCfg["skip_region_validation"] = true
 		}
 
+		// provider configuration for credentials
+		tfCfg[keyAccessKeyID] = creds.AccessKeyID
+		tfCfg[keySecretAccessKey] = creds.SecretAccessKey
+		tfCfg[keySessionToken] = creds.SessionToken
 		ps.Configuration = tfCfg
-		// set credentials environment
-		ps.Env = []string{
-			fmt.Sprintf(fmtEnvVar, envAccessKeyID, creds.AccessKeyID),
-			fmt.Sprintf(fmtEnvVar, envSecretAccessKey, creds.SecretAccessKey),
-			fmt.Sprintf(fmtEnvVar, envSessionToken, creds.SessionToken),
-		}
-
 		return ps, err
 	}
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
 
+	"github.com/crossplane-contrib/provider-jet-awssc/config/lambda"
 	"github.com/crossplane-contrib/provider-jet-awssc/config/servicecatalog"
 
 	tjconfig "github.com/crossplane/terrajet/pkg/config"
@@ -40,6 +41,8 @@ var IncludedResources = []string{
 	// Service Catalog
 	"aws_servicecatalog_provisioning_artifact$",
 	"aws_servicecatalog_provisioned_product$",
+	"aws_lambda_function$",
+	"aws_lambda_event_source_mapping$",
 }
 
 // Options for this Provider.
@@ -87,8 +90,8 @@ func GetProviderWithTimeouts(ot *tjconfig.OperationTimeouts) *tjconfig.Provider 
 		tjconfig.WithDefaultResourceFn(defaultResourceFn))
 
 	for _, configure := range []func(provider *tjconfig.Provider, ot *tjconfig.OperationTimeouts){
-		// add custom config functions
 		servicecatalog.Configure,
+		lambda.Configure,
 	} {
 		configure(pc, ot)
 	}
