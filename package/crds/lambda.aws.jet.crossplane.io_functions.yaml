@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: provisionedproducts.servicecatalog.aws.jet.crossplane.io
+  name: functions.lambda.aws.jet.crossplane.io
 spec:
-  group: servicecatalog.aws.jet.crossplane.io
+  group: lambda.aws.jet.crossplane.io
   names:
     categories:
     - crossplane
     - managed
     - awsjet
-    kind: ProvisionedProduct
-    listKind: ProvisionedProductList
-    plural: provisionedproducts
-    singular: provisionedproduct
+    kind: Function
+    listKind: FunctionList
+    plural: functions
+    singular: function
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -32,11 +32,10 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    name: v1alpha2
+    name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ProvisionedProduct is the Schema for the ProvisionedProducts
-          API
+        description: Function is the Schema for the Functions API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -51,7 +50,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProvisionedProductSpec defines the desired state of ProvisionedProduct
+            description: FunctionSpec defines the desired state of Function
             properties:
               deletionPolicy:
                 default: Delete
@@ -64,75 +63,162 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  acceptLanguage:
-                    type: string
-                  ignoreErrors:
-                    type: boolean
-                  name:
-                    type: string
-                  notificationArns:
+                  architectures:
                     items:
                       type: string
                     type: array
-                  pathId:
+                  codeSigningConfigArn:
                     type: string
-                  pathName:
-                    type: string
-                  productId:
-                    type: string
-                  productName:
-                    type: string
-                  provisioningArtifactId:
-                    type: string
-                  provisioningArtifactName:
-                    type: string
-                  provisioningParameters:
+                  deadLetterConfig:
                     items:
                       properties:
-                        key:
-                          type: string
-                        usePreviousValue:
-                          type: boolean
-                        value:
+                        targetArn:
                           type: string
                       required:
-                      - key
+                      - targetArn
                       type: object
                     type: array
+                  description:
+                    type: string
+                  environment:
+                    items:
+                      properties:
+                        variables:
+                          additionalProperties:
+                            type: string
+                          type: object
+                      type: object
+                    type: array
+                  ephemeralStorage:
+                    items:
+                      properties:
+                        size:
+                          type: number
+                      type: object
+                    type: array
+                  fileSystemConfig:
+                    items:
+                      properties:
+                        arn:
+                          type: string
+                        localMountPath:
+                          type: string
+                      required:
+                      - arn
+                      - localMountPath
+                      type: object
+                    type: array
+                  filename:
+                    type: string
+                  functionName:
+                    type: string
+                  handler:
+                    type: string
+                  imageConfig:
+                    items:
+                      properties:
+                        command:
+                          items:
+                            type: string
+                          type: array
+                        entryPoint:
+                          items:
+                            type: string
+                          type: array
+                        workingDirectory:
+                          type: string
+                      type: object
+                    type: array
+                  imageUri:
+                    type: string
+                  kmsKeyArn:
+                    type: string
+                  kmsKeyArnRef:
+                    description: A Reference to a named object.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  kmsKeyArnSelector:
+                    description: A Selector selects an object.
+                    properties:
+                      matchControllerRef:
+                        description: MatchControllerRef ensures an object with the
+                          same controller reference as the selecting object is selected.
+                        type: boolean
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: MatchLabels ensures an object with matching labels
+                          is selected.
+                        type: object
+                    type: object
+                  layers:
+                    items:
+                      type: string
+                    type: array
+                  memorySize:
+                    type: number
+                  packageType:
+                    type: string
+                  publish:
+                    type: boolean
                   region:
                     description: Region is the region you'd like your resource to
                       be created in.
                     type: string
-                  retainPhysicalResources:
-                    type: boolean
-                  stackSetProvisioningPreferences:
-                    items:
-                      properties:
-                        accounts:
-                          items:
-                            type: string
-                          type: array
-                        failureToleranceCount:
-                          type: number
-                        failureTolerancePercentage:
-                          type: number
-                        maxConcurrencyCount:
-                          type: number
-                        maxConcurrencyPercentage:
-                          type: number
-                        regions:
-                          items:
-                            type: string
-                          type: array
-                      type: object
-                    type: array
+                  reservedConcurrentExecutions:
+                    type: number
+                  role:
+                    type: string
+                  runtime:
+                    type: string
+                  s3Bucket:
+                    type: string
+                  s3Key:
+                    type: string
+                  s3ObjectVersion:
+                    type: string
+                  sourceCodeHash:
+                    type: string
                   tags:
                     additionalProperties:
                       type: string
                     type: object
+                  timeout:
+                    type: number
+                  tracingConfig:
+                    items:
+                      properties:
+                        mode:
+                          type: string
+                      required:
+                      - mode
+                      type: object
+                    type: array
+                  vpcConfig:
+                    items:
+                      properties:
+                        securityGroupIds:
+                          items:
+                            type: string
+                          type: array
+                        subnetIds:
+                          items:
+                            type: string
+                          type: array
+                      required:
+                      - securityGroupIds
+                      - subnetIds
+                      type: object
+                    type: array
                 required:
-                - name
+                - functionName
                 - region
+                - role
                 type: object
               providerConfigRef:
                 default:
@@ -231,48 +317,31 @@ spec:
             - forProvider
             type: object
           status:
-            description: ProvisionedProductStatus defines the observed state of ProvisionedProduct.
+            description: FunctionStatus defines the observed state of Function.
             properties:
               atProvider:
                 properties:
                   arn:
                     type: string
-                  cloudwatchDashboardNames:
-                    items:
-                      type: string
-                    type: array
-                  createdTime:
-                    type: string
                   id:
                     type: string
-                  lastProvisioningRecordId:
+                  invokeArn:
                     type: string
-                  lastRecordId:
+                  lastModified:
                     type: string
-                  lastSuccessfulProvisioningRecordId:
+                  qualifiedArn:
                     type: string
-                  launchRoleArn:
+                  signingJobArn:
                     type: string
-                  outputs:
-                    items:
-                      properties:
-                        description:
-                          type: string
-                        key:
-                          type: string
-                        value:
-                          type: string
-                      type: object
-                    type: array
-                  status:
+                  signingProfileVersionArn:
                     type: string
-                  statusMessage:
-                    type: string
+                  sourceCodeSize:
+                    type: number
                   tagsAll:
                     additionalProperties:
                       type: string
                     type: object
-                  type:
+                  version:
                     type: string
                 type: object
               conditions:

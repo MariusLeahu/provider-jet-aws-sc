@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: provisionedproducts.servicecatalog.aws.jet.crossplane.io
+  name: metricalarms.cloudwatch.aws.jet.crossplane.io
 spec:
-  group: servicecatalog.aws.jet.crossplane.io
+  group: cloudwatch.aws.jet.crossplane.io
   names:
     categories:
     - crossplane
     - managed
     - awsjet
-    kind: ProvisionedProduct
-    listKind: ProvisionedProductList
-    plural: provisionedproducts
-    singular: provisionedproduct
+    kind: MetricAlarm
+    listKind: MetricAlarmList
+    plural: metricalarms
+    singular: metricalarm
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -32,11 +32,10 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    name: v1alpha2
+    name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ProvisionedProduct is the Schema for the ProvisionedProducts
-          API
+        description: MetricAlarm is the Schema for the MetricAlarms API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -51,7 +50,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProvisionedProductSpec defines the desired state of ProvisionedProduct
+            description: MetricAlarmSpec defines the desired state of MetricAlarm
             properties:
               deletionPolicy:
                 default: Delete
@@ -64,74 +63,106 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  acceptLanguage:
-                    type: string
-                  ignoreErrors:
+                  actionsEnabled:
                     type: boolean
-                  name:
-                    type: string
-                  notificationArns:
+                  alarmActions:
                     items:
                       type: string
                     type: array
-                  pathId:
+                  alarmDescription:
                     type: string
-                  pathName:
+                  alarmName:
                     type: string
-                  productId:
+                  comparisonOperator:
                     type: string
-                  productName:
+                  datapointsToAlarm:
+                    type: number
+                  dimensions:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  evaluateLowSampleCountPercentiles:
                     type: string
-                  provisioningArtifactId:
+                  evaluationPeriods:
+                    type: number
+                  extendedStatistic:
                     type: string
-                  provisioningArtifactName:
+                  insufficientDataActions:
+                    items:
+                      type: string
+                    type: array
+                  metricName:
                     type: string
-                  provisioningParameters:
+                  metricQuery:
                     items:
                       properties:
-                        key:
+                        accountId:
                           type: string
-                        usePreviousValue:
+                        expression:
+                          type: string
+                        id:
+                          type: string
+                        label:
+                          type: string
+                        metric:
+                          items:
+                            properties:
+                              dimensions:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              metricName:
+                                type: string
+                              namespace:
+                                type: string
+                              period:
+                                type: number
+                              stat:
+                                type: string
+                              unit:
+                                type: string
+                            required:
+                            - metricName
+                            - period
+                            - stat
+                            type: object
+                          type: array
+                        returnData:
                           type: boolean
-                        value:
-                          type: string
                       required:
-                      - key
+                      - id
                       type: object
                     type: array
+                  namespace:
+                    type: string
+                  okActions:
+                    items:
+                      type: string
+                    type: array
+                  period:
+                    type: number
                   region:
                     description: Region is the region you'd like your resource to
                       be created in.
                     type: string
-                  retainPhysicalResources:
-                    type: boolean
-                  stackSetProvisioningPreferences:
-                    items:
-                      properties:
-                        accounts:
-                          items:
-                            type: string
-                          type: array
-                        failureToleranceCount:
-                          type: number
-                        failureTolerancePercentage:
-                          type: number
-                        maxConcurrencyCount:
-                          type: number
-                        maxConcurrencyPercentage:
-                          type: number
-                        regions:
-                          items:
-                            type: string
-                          type: array
-                      type: object
-                    type: array
+                  statistic:
+                    type: string
                   tags:
                     additionalProperties:
                       type: string
                     type: object
+                  threshold:
+                    type: number
+                  thresholdMetricId:
+                    type: string
+                  treatMissingData:
+                    type: string
+                  unit:
+                    type: string
                 required:
-                - name
+                - alarmName
+                - comparisonOperator
+                - evaluationPeriods
                 - region
                 type: object
               providerConfigRef:
@@ -231,49 +262,18 @@ spec:
             - forProvider
             type: object
           status:
-            description: ProvisionedProductStatus defines the observed state of ProvisionedProduct.
+            description: MetricAlarmStatus defines the observed state of MetricAlarm.
             properties:
               atProvider:
                 properties:
                   arn:
                     type: string
-                  cloudwatchDashboardNames:
-                    items:
-                      type: string
-                    type: array
-                  createdTime:
-                    type: string
                   id:
-                    type: string
-                  lastProvisioningRecordId:
-                    type: string
-                  lastRecordId:
-                    type: string
-                  lastSuccessfulProvisioningRecordId:
-                    type: string
-                  launchRoleArn:
-                    type: string
-                  outputs:
-                    items:
-                      properties:
-                        description:
-                          type: string
-                        key:
-                          type: string
-                        value:
-                          type: string
-                      type: object
-                    type: array
-                  status:
-                    type: string
-                  statusMessage:
                     type: string
                   tagsAll:
                     additionalProperties:
                       type: string
                     type: object
-                  type:
-                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

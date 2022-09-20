@@ -21,8 +21,9 @@ import (
 	_ "embed"
 	"time"
 
+	"github.com/crossplane-contrib/provider-jet-awssc/config/cloudwatch"
 	"github.com/crossplane-contrib/provider-jet-awssc/config/common"
-
+	"github.com/crossplane-contrib/provider-jet-awssc/config/lambda"
 	"github.com/crossplane-contrib/provider-jet-awssc/config/servicecatalog"
 
 	tjconfig "github.com/crossplane/terrajet/pkg/config"
@@ -40,6 +41,12 @@ var IncludedResources = []string{
 	// Service Catalog
 	"aws_servicecatalog_provisioning_artifact$",
 	"aws_servicecatalog_provisioned_product$",
+	"aws_lambda_function$",
+	"aws_lambda_event_source_mapping$",
+	"aws_cloudwatch_composite_alarm$",
+	"aws_cloudwatch_dashboard$",
+	"aws_cloudwatch_metric_alarm$",
+	"aws_cloudwatch_metric_stream$",
 }
 
 // Options for this Provider.
@@ -87,8 +94,9 @@ func GetProviderWithTimeouts(ot *tjconfig.OperationTimeouts) *tjconfig.Provider 
 		tjconfig.WithDefaultResourceFn(defaultResourceFn))
 
 	for _, configure := range []func(provider *tjconfig.Provider, ot *tjconfig.OperationTimeouts){
-		// add custom config functions
 		servicecatalog.Configure,
+		lambda.Configure,
+		cloudwatch.Configure,
 	} {
 		configure(pc, ot)
 	}

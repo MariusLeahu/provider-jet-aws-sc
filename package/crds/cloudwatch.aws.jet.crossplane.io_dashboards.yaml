@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: provisionedproducts.servicecatalog.aws.jet.crossplane.io
+  name: dashboards.cloudwatch.aws.jet.crossplane.io
 spec:
-  group: servicecatalog.aws.jet.crossplane.io
+  group: cloudwatch.aws.jet.crossplane.io
   names:
     categories:
     - crossplane
     - managed
     - awsjet
-    kind: ProvisionedProduct
-    listKind: ProvisionedProductList
-    plural: provisionedproducts
-    singular: provisionedproduct
+    kind: Dashboard
+    listKind: DashboardList
+    plural: dashboards
+    singular: dashboard
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -32,11 +32,10 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    name: v1alpha2
+    name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ProvisionedProduct is the Schema for the ProvisionedProducts
-          API
+        description: Dashboard is the Schema for the Dashboards API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -51,7 +50,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProvisionedProductSpec defines the desired state of ProvisionedProduct
+            description: DashboardSpec defines the desired state of Dashboard
             properties:
               deletionPolicy:
                 default: Delete
@@ -64,74 +63,17 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  acceptLanguage:
+                  dashboardBody:
                     type: string
-                  ignoreErrors:
-                    type: boolean
-                  name:
+                  dashboardName:
                     type: string
-                  notificationArns:
-                    items:
-                      type: string
-                    type: array
-                  pathId:
-                    type: string
-                  pathName:
-                    type: string
-                  productId:
-                    type: string
-                  productName:
-                    type: string
-                  provisioningArtifactId:
-                    type: string
-                  provisioningArtifactName:
-                    type: string
-                  provisioningParameters:
-                    items:
-                      properties:
-                        key:
-                          type: string
-                        usePreviousValue:
-                          type: boolean
-                        value:
-                          type: string
-                      required:
-                      - key
-                      type: object
-                    type: array
                   region:
                     description: Region is the region you'd like your resource to
                       be created in.
                     type: string
-                  retainPhysicalResources:
-                    type: boolean
-                  stackSetProvisioningPreferences:
-                    items:
-                      properties:
-                        accounts:
-                          items:
-                            type: string
-                          type: array
-                        failureToleranceCount:
-                          type: number
-                        failureTolerancePercentage:
-                          type: number
-                        maxConcurrencyCount:
-                          type: number
-                        maxConcurrencyPercentage:
-                          type: number
-                        regions:
-                          items:
-                            type: string
-                          type: array
-                      type: object
-                    type: array
-                  tags:
-                    additionalProperties:
-                      type: string
-                    type: object
                 required:
-                - name
+                - dashboardBody
+                - dashboardName
                 - region
                 type: object
               providerConfigRef:
@@ -231,48 +173,13 @@ spec:
             - forProvider
             type: object
           status:
-            description: ProvisionedProductStatus defines the observed state of ProvisionedProduct.
+            description: DashboardStatus defines the observed state of Dashboard.
             properties:
               atProvider:
                 properties:
-                  arn:
-                    type: string
-                  cloudwatchDashboardNames:
-                    items:
-                      type: string
-                    type: array
-                  createdTime:
+                  dashboardArn:
                     type: string
                   id:
-                    type: string
-                  lastProvisioningRecordId:
-                    type: string
-                  lastRecordId:
-                    type: string
-                  lastSuccessfulProvisioningRecordId:
-                    type: string
-                  launchRoleArn:
-                    type: string
-                  outputs:
-                    items:
-                      properties:
-                        description:
-                          type: string
-                        key:
-                          type: string
-                        value:
-                          type: string
-                      type: object
-                    type: array
-                  status:
-                    type: string
-                  statusMessage:
-                    type: string
-                  tagsAll:
-                    additionalProperties:
-                      type: string
-                    type: object
-                  type:
                     type: string
                 type: object
               conditions:

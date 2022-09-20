@@ -32,6 +32,9 @@ const (
 	// in this package.
 	PathARNExtractor = SelfPackagePath + ".ARNExtractor()"
 
+	// VersionV1Alpha1 v1alpha1 means resource a resource wasn't modified
+	VersionV1Alpha1 = "v1alpha1"
+
 	// VersionV1Alpha2 is used as minimum version for all manually configured
 	// resources.
 	VersionV1Alpha2 = "v1alpha2"

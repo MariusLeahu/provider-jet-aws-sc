@@ -21,6 +21,12 @@ import (
 
 	"github.com/crossplane/terrajet/pkg/controller"
 
+	compositealarm "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/cloudwatch/compositealarm"
+	dashboard "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/cloudwatch/dashboard"
+	metricalarm "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/cloudwatch/metricalarm"
+	metricstream "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/cloudwatch/metricstream"
+	eventsourcemapping "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/lambda/eventsourcemapping"
+	function "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/lambda/function"
 	providerconfig "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/providerconfig"
 	provisionedproduct "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/servicecatalog/provisionedproduct"
 	provisioningartifact "github.com/crossplane-contrib/provider-jet-awssc/internal/controller/servicecatalog/provisioningartifact"
@@ -30,6 +36,12 @@ import (
 // the supplied manager.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
+		compositealarm.Setup,
+		dashboard.Setup,
+		metricalarm.Setup,
+		metricstream.Setup,
+		eventsourcemapping.Setup,
+		function.Setup,
 		providerconfig.Setup,
 		provisionedproduct.Setup,
 		provisioningartifact.Setup,
